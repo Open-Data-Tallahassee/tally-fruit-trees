@@ -1,3 +1,5 @@
+"use client";
+
 const Header = () => {
   return (
     <div className="flex justify-between bg-[#2E6B8C] text-white py-5 px-3">
