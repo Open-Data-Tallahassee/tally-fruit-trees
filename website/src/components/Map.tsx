@@ -1,10 +1,11 @@
 "use client";
 
+import TreeInfoTooltip from "@/components/TreeInfoTooltip";
+import FRUIT_TREES_GEOJSON from "@/constants";
+import { Feature } from "geojson";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useRef, useState } from "react";
-import FRUIT_TREES_GEOJSON from "@/constants";
-import Tooltip from "@/components/ToolTip";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_REACT_APP_MAPBOX_TOKEN || "";
 
@@ -17,9 +18,14 @@ const Map = () => {
   const initZoom = 11.53;
 
   const [selectedTree, setSelectedTree] = useState<any>(null);
+  const [openToolbar, setOpenToolbar] = useState<boolean>(false);
+  const [openNewTreeForm, setOpenNewTreeForm] = useState<boolean>(false);
 
   useEffect(() => {
     if (mapRef.current) return; // Initialize map only once
+
+    // ─────────────────────────────────────────────────────
+    // Add map
 
     const initMap = () => {
       mapRef.current = new mapboxgl.Map({
@@ -32,8 +38,9 @@ const Map = () => {
 
       mapRef.current.on("load", () => {
         if (mapRef.current) {
-          // Add ArcGIS Feature Layer as a GeoJSON source
-
+          // ─────────────────────────────────────────────────────
+          // 1) Add ArcGIS Source & Layer for Fruit Trees
+          // ─────────────────────────────────────────────────────
           mapRef.current.addSource("fruitTrees", {
             type: "geojson",
             data: FRUIT_TREES_GEOJSON,
@@ -58,11 +65,37 @@ const Map = () => {
             },
           });
 
-          // Add click event listener for the treePoints layer
+          // ─────────────────────────────────────────────────────
+          // 2) Add a new source & layer for the single red dot
+          //    Initialize with an empty FeatureCollection
+          // ─────────────────────────────────────────────────────
+          mapRef.current.addSource("singleDot", {
+            type: "geojson",
+            data: {
+              type: "FeatureCollection",
+              features: [],
+            },
+          });
+
+          mapRef.current.addLayer({
+            id: "singleDotLayer",
+            type: "circle",
+            source: "singleDot",
+            paint: {
+              "circle-radius": 6,
+              "circle-color": "red",
+              "circle-opacity": 1.0,
+            },
+          });
+
+          // ─────────────────────────────────────────────────────
+          // 3) Click event on "treePoints" to show the tooltip
+          // ─────────────────────────────────────────────────────
           mapRef.current.on("click", "treePoints", (e) => {
             const features = e.features?.[0];
             if (features) {
               setSelectedTree(features.properties);
+              if (!openToolbar) setOpenToolbar(true);
             }
           });
 
@@ -74,6 +107,40 @@ const Map = () => {
           mapRef.current.on("mouseleave", "treePoints", () => {
             mapRef.current?.getCanvas().style.setProperty("cursor", "");
           });
+
+          // ─────────────────────────────────────────────────────
+          // 4) Generic map click (outside treePoints)
+          //    Update the 'singleDot' source with the new point
+          // ─────────────────────────────────────────────────────
+          mapRef.current.on("click", (e) => {
+            if (!mapRef.current) return;
+
+            // Check if the click hits any tree points
+            const features = mapRef.current.queryRenderedFeatures(e.point, {
+              layers: ["treePoints"],
+            });
+
+            // If no treePoints found => user clicked empty space
+            if (!features.length) {
+              const pointFeature: Feature = {
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: [e.lngLat.lng, e.lngLat.lat],
+                },
+                properties: {},
+              };
+
+              // Update 'singleDot' source to only have this one feature
+              const singleDotSource = mapRef.current.getSource(
+                "singleDot"
+              ) as mapboxgl.GeoJSONSource;
+              singleDotSource.setData({
+                type: "FeatureCollection",
+                features: [pointFeature],
+              });
+            }
+          });
         }
       });
     };
@@ -83,7 +150,11 @@ const Map = () => {
 
   return (
     <>
-      <Tooltip selectedTree={selectedTree} />
+      <TreeInfoTooltip
+        selectedTree={selectedTree}
+        open={openToolbar}
+        setOpen={setOpenToolbar}
+      />
       <div
         ref={mapContainer}
         className="map-container h-[calc(100vh_-_68px)] w-full relative z-10"
