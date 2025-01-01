@@ -11,17 +11,11 @@ interface NewTreeFormProps {
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePlus } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "./ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import {
   Select,
   SelectContent,
@@ -30,7 +24,6 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
-import { useEffect } from "react";
 
 export const formSchema = z.object({
   treeType: z
@@ -105,7 +98,7 @@ const NewTreeForm = ({ open, setOpen, treeLocation }: NewTreeFormProps) => {
               <FormField
                 control={form.control}
                 name="location.latitude"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormMessage />
                   </FormItem>

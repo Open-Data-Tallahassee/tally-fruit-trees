@@ -2,7 +2,7 @@
 
 import TreeInfoTooltip from "@/components/TreeInfoTooltip";
 import FRUIT_TREES_GEOJSON from "@/constants";
-import { Feature } from "geojson";
+import { Feature, GeoJsonProperties } from "geojson";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useRef, useState } from "react";
@@ -18,7 +18,7 @@ const Map = () => {
   const lng: number = -84.2875;
   const initZoom: number = 11.53;
 
-  const [selectedTree, setSelectedTree] = useState<any>(null);
+  const [selectedTree, setSelectedTree] = useState<GeoJsonProperties>(null);
   const [openToolbar, setOpenToolbar] = useState<boolean>(false);
   const [openNewTreeForm, setOpenNewTreeForm] = useState<boolean>(false);
 
