@@ -6,6 +6,7 @@ import { Feature } from "geojson";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useRef, useState } from "react";
+import NewTreeForm from "./NewTreeForm";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_REACT_APP_MAPBOX_TOKEN || "";
 
@@ -13,13 +14,21 @@ const Map = () => {
   const mapContainer = useRef(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
-  const lat = 30.4543;
-  const lng = -84.2875;
-  const initZoom = 11.53;
+  const lat: number = 30.4543;
+  const lng: number = -84.2875;
+  const initZoom: number = 11.53;
 
   const [selectedTree, setSelectedTree] = useState<any>(null);
   const [openToolbar, setOpenToolbar] = useState<boolean>(false);
   const [openNewTreeForm, setOpenNewTreeForm] = useState<boolean>(false);
+
+  const [newTreeLocation, setNewTreeLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  }>({
+    latitude: 0,
+    longitude: 0,
+  });
 
   useEffect(() => {
     if (mapRef.current) return; // Initialize map only once
@@ -38,6 +47,24 @@ const Map = () => {
 
       mapRef.current.on("load", () => {
         if (mapRef.current) {
+          // Add a scale at the bottom right
+          mapRef.current.addControl(
+            new mapboxgl.NavigationControl(),
+            "bottom-right"
+          );
+
+          // Add a geolocate control to the map
+          mapRef.current.addControl(
+            new mapboxgl.GeolocateControl({
+              positionOptions: {
+                enableHighAccuracy: true,
+              },
+              trackUserLocation: true,
+              showUserHeading: true,
+            }),
+            "bottom-right"
+          );
+
           // ─────────────────────────────────────────────────────
           // 1) Add ArcGIS Source & Layer for Fruit Trees
           // ─────────────────────────────────────────────────────
@@ -139,6 +166,11 @@ const Map = () => {
                 type: "FeatureCollection",
                 features: [pointFeature],
               });
+
+              setNewTreeLocation({
+                latitude: e.lngLat.lat,
+                longitude: e.lngLat.lng,
+              });
             }
           });
         }
@@ -148,6 +180,12 @@ const Map = () => {
     initMap();
   }, []);
 
+  useEffect(() => {
+    if (openNewTreeForm) {
+      setOpenToolbar(false);
+    }
+  }, [openNewTreeForm]);
+
   return (
     <>
       <TreeInfoTooltip
@@ -155,6 +193,13 @@ const Map = () => {
         open={openToolbar}
         setOpen={setOpenToolbar}
       />
+
+      <NewTreeForm
+        open={openNewTreeForm}
+        setOpen={setOpenNewTreeForm}
+        treeLocation={newTreeLocation}
+      />
+
       <div
         ref={mapContainer}
         className="map-container h-[calc(100vh_-_68px)] w-full relative z-10"
