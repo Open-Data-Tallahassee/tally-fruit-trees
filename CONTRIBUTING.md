@@ -13,11 +13,10 @@ This repository is something my wife and I have thought about for 3 years. While
 This repository is structured as follows:
 
 ```
-apps
-└── website
-    └── src
-        ├── app
-        └── components
+website
+  └── src
+      ├── app
+      └── components
 ```
 
 | Path                     | Description                              |
