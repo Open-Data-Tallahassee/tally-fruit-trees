@@ -53,17 +53,52 @@ const Map = () => {
             "bottom-right"
           );
 
-          // Add a geolocate control to the map
-          mapRef.current.addControl(
-            new mapboxgl.GeolocateControl({
-              positionOptions: {
-                enableHighAccuracy: true,
+          // Create the GeolocateControl
+          const geolocateControl = new mapboxgl.GeolocateControl({
+            positionOptions: {
+              enableHighAccuracy: true,
+            },
+            trackUserLocation: false,
+            showUserHeading: true,
+          });
+
+          // Add the control to the map
+          mapRef.current.addControl(geolocateControl, "bottom-right");
+
+          // When user location is determined (the geolocate button is clicked or user is tracked)
+          geolocateControl.on("geolocate", (e) => {
+            // Get the user's location
+            if (!mapRef.current) return;
+
+            // Extract lat/lng from the geolocate event
+            const currentLat = e.coords.latitude;
+            const currentLng = e.coords.longitude;
+
+            // Create a new GeoJSON feature
+            const pointFeature: Feature = {
+              type: "Feature",
+              geometry: {
+                type: "Point",
+                coordinates: [currentLng, currentLat],
               },
-              trackUserLocation: true,
-              showUserHeading: true,
-            }),
-            "bottom-right"
-          );
+              properties: {},
+            };
+
+            // Update the 'singleDot' source
+            const singleDotSource = mapRef.current.getSource(
+              "singleDot"
+            ) as mapboxgl.GeoJSONSource;
+            singleDotSource.setData({
+              type: "FeatureCollection",
+              features: [pointFeature],
+            });
+
+            // Update newTreeLocation state if needed
+            setNewTreeLocation({
+              latitude: currentLat,
+              longitude: currentLng,
+            });
+          });
 
           // ─────────────────────────────────────────────────────
           // 1) Add ArcGIS Source & Layer for Fruit Trees
