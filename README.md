@@ -1,5 +1,7 @@
 # tally-fruit-trees
 
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
+
 placeholder for a project where we provide coordinates, fruit-type, fruiting-times, type of property the tree is on, whether the property own allows public picking
 
 ## Resources
