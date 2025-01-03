@@ -1,0 +1,9 @@
+"tree_id","lat","long","fruit_type","property_type","public_picking","notes","created","start_month","end_month","description"
+1,30.454787,-84.267410,Fig,Residential,true,almost in season. Saw 6/6,2025-01-02 17:05:21.940,5,7,Spring to Summer
+2,30.454649,-84.268356,Pear,Residential,false,almost ripe (6/6),2025-01-02 17:05:21.940,8,10,Fall
+3,30.443192,-84.277211,Orange,Residential,false,"",2025-01-02 17:05:21.940,11,4,Winter to Spring
+5,30.443192,-84.277211,Lemon,Residential,false,"",2025-01-02 17:05:21.940,11,4,Winter to Spring
+4,30.443192,-84.277211,Tangerine,Residential,false,"",2025-01-02 17:05:21.940,11,1,Late Fall to Winter
+7,30.449653,-84.278427,Orange,Residential,,Orange tree in the front -- fruit tastes like water. Needs love and care.,2025-01-02 17:05:21.940,11,4,Winter to Spring
+8,30.456172,-84.272109,Satsuma,Residential,,Satsuma tree in the front. -- Very yummy! In season (Jan. 2021),2025-01-02 17:05:21.940,11,1,Late Fall to Winter
+6,30.450476,-84.273550,Orange,Residential,,"Orange tree, in the front but on the side. -- Haven't tried it yet.",2025-01-02 17:05:21.940,11,4,Winter to Spring
