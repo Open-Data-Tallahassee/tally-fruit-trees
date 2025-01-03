@@ -11,7 +11,6 @@ interface Tree {
 }
 
 interface TreeWithDetails extends Tree {
-  id: number;
   created: Date;
 }
 
@@ -25,4 +24,24 @@ interface TreeWithFruitingTime extends TreeWithDetails {
   fruiting_times: FruitingTime[];
 }
 
-export type { Tree, TreeWithFruitingTime, FruitingTime, TreeWithDetails };
+interface TreeGithub {
+  tree_id: string;
+  lat: string;
+  long: string;
+  fruit_type: string;
+  property_type: string;
+  public_picking: string;
+  notes?: string;
+  created: string;
+  start_month: string;
+  end_month: string;
+  description?: string;
+}
+
+export type {
+  FruitingTime,
+  Tree,
+  TreeGithub,
+  TreeWithDetails,
+  TreeWithFruitingTime,
+};

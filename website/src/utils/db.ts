@@ -1,9 +1,11 @@
 import {
-  Tree,
-  TreeWithFruitingTime,
   FruitingTime,
+  Tree,
+  TreeGithub,
   TreeWithDetails,
+  TreeWithFruitingTime,
 } from "@/types/trees";
+import Papa from "papaparse";
 import { Pool, PoolClient } from "pg";
 
 // We'll create and reuse a single pool instance in the server environment
@@ -183,5 +185,78 @@ export async function createTree(tree: Tree) {
   } finally {
     // Release the client back to the pool
     client.release();
+  }
+}
+
+/**
+ * Retrieves all Tree records from the CSV file, including their type and property type names.
+ * @returns An array of TreeWithFruitingTime objects.
+ * @throws Error if fetching or parsing fails.
+ */
+export async function getTreesGithub(): Promise<TreeWithDetails[]> {
+  const csvUrl =
+    "https://raw.githubusercontent.com/Open-Data-Tallahassee/tally-fruit-trees/refs/heads/main/data/fruit_trees_202501031321.csv";
+
+  try {
+    // Fetch the CSV data
+    const response = await fetch(csvUrl);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch CSV data: ${response.status} ${response.statusText}`
+      );
+    }
+    const csvText: string = await response.text();
+
+    // Parse the CSV data using PapaParse
+    const parseResult = Papa.parse<TreeGithub>(csvText, {
+      header: true, // Treat the first row as header
+      skipEmptyLines: true, // Skip empty lines
+      transformHeader: (header) => header.trim(), // Optional: further trim headers
+    });
+
+    if (parseResult.errors.length > 0) {
+      console.error("CSV Parsing Errors:", parseResult.errors);
+      throw new Error("Failed to parse CSV data.");
+    }
+
+    const records: TreeGithub[] = parseResult.data;
+
+    // Map to TreeWithFruitingTime objects
+    const treesMap: Map<number, TreeWithFruitingTime> = new Map();
+
+    records.forEach((row: TreeGithub) => {
+      const treeId = Number(row.tree_id);
+
+      if (!treesMap.has(treeId)) {
+        treesMap.set(treeId, {
+          id: treeId,
+          lat: parseFloat(row.lat),
+          long: parseFloat(row.long),
+          fruitType: row.fruit_type,
+          propertyType: row.property_type,
+          public_picking: row.public_picking
+            ? row.public_picking.toLowerCase() === "true"
+            : null, // Convert 'public_picking' to boolean or null
+          notes: row.notes || undefined,
+          created: new Date(row.created),
+          fruiting_times: [],
+        });
+      }
+
+      // If there's a fruiting time, add it to the tree's fruiting_times array
+      if (row.start_month && row.end_month) {
+        const fruitingTime: FruitingTime = {
+          start_month: parseFloat(row.start_month),
+          end_month: parseFloat(row.end_month),
+          description: row.description || undefined,
+        };
+        treesMap.get(treeId)?.fruiting_times.push(fruitingTime);
+      }
+    });
+
+    return Array.from(treesMap.values());
+  } catch (error) {
+    console.error("Error fetching or parsing trees:", error);
+    throw new Error("Failed to fetch trees from CSV.");
   }
 }
