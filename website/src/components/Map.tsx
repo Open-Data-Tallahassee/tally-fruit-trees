@@ -1,8 +1,10 @@
 "use client";
+interface MapProps {
+  treeData: FeatureCollection;
+}
 
 import TreeInfoTooltip from "@/components/TreeInfoTooltip";
-import FRUIT_TREES_GEOJSON from "@/constants";
-import { Feature, GeoJsonProperties } from "geojson";
+import { Feature, FeatureCollection, GeoJsonProperties } from "geojson";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useRef, useState } from "react";
@@ -10,7 +12,7 @@ import NewTreeForm from "./NewTreeForm";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_REACT_APP_MAPBOX_TOKEN || "";
 
-const Map = () => {
+const Map = ({ treeData }: MapProps) => {
   const mapContainer = useRef(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
 
@@ -105,7 +107,7 @@ const Map = () => {
           // ─────────────────────────────────────────────────────
           mapRef.current.addSource("fruitTrees", {
             type: "geojson",
-            data: FRUIT_TREES_GEOJSON,
+            data: treeData,
           });
 
           mapRef.current.addLayer({
