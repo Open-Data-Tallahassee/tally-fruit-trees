@@ -2,7 +2,6 @@ import {
   FruitingTime,
   Tree,
   TreeGithub,
-  TreeWithDetails,
   TreeWithFruitingTime,
 } from "@/types/trees";
 import Papa from "papaparse";
@@ -57,8 +56,8 @@ export async function getTrees(): Promise<TreeWithFruitingTime[]> {
 
     const result = await client.query(query);
 
-    // Map to TreeWithDetails with aggregated fruitingTimes
-    const treesMap: Map<number, TreeWithDetails> = new Map();
+    // Map to TreeWithFruitingTime with aggregated fruitingTimes
+    const treesMap: Map<number, TreeWithFruitingTime> = new Map();
 
     result.rows.forEach((row) => {
       const treeId = row.tree_id;
@@ -70,21 +69,21 @@ export async function getTrees(): Promise<TreeWithFruitingTime[]> {
           long: parseFloat(row.long),
           fruitType: row.fruit_type,
           propertyType: row.property_type,
-          public_picking: row.public_picking,
+          publicPicking: row.public_picking,
           notes: row.notes || undefined,
           created: new Date(row.created),
-          fruiting_times: [],
+          fruitingTimes: [],
         });
       }
 
       // If there's a fruiting time, add it to the tree's fruitingTimes array
       if (row.start_month && row.end_month) {
         const fruitingTime: FruitingTime = {
-          start_month: row.start_month,
-          end_month: row.end_month,
+          startMonth: row.start_month,
+          endMonth: row.end_month,
           description: row.description || undefined,
         };
-        treesMap.get(treeId)?.fruiting_times.push(fruitingTime);
+        treesMap.get(treeId)?.fruitingTimes.push(fruitingTime);
       }
     });
 
@@ -166,7 +165,7 @@ export async function createTree(tree: Tree) {
       tree.long,
       treeTypeId,
       propertyTypeId,
-      tree.public_picking,
+      tree.publicPicking,
       tree.notes || null, // Ensure NULL if notes are undefined
     ];
 
@@ -193,7 +192,7 @@ export async function createTree(tree: Tree) {
  * @returns An array of TreeWithFruitingTime objects.
  * @throws Error if fetching or parsing fails.
  */
-export async function getTreesGithub(): Promise<TreeWithDetails[]> {
+export async function getTreesGithub(): Promise<TreeWithFruitingTime[]> {
   const csvUrl =
     "https://raw.githubusercontent.com/Open-Data-Tallahassee/tally-fruit-trees/refs/heads/main/data/fruit_trees_202501031321.csv";
 
@@ -234,23 +233,23 @@ export async function getTreesGithub(): Promise<TreeWithDetails[]> {
           long: parseFloat(row.long),
           fruitType: row.fruit_type,
           propertyType: row.property_type,
-          public_picking: row.public_picking
+          publicPicking: row.public_picking
             ? row.public_picking.toLowerCase() === "true"
             : null, // Convert 'public_picking' to boolean or null
           notes: row.notes || undefined,
           created: new Date(row.created),
-          fruiting_times: [],
+          fruitingTimes: [],
         });
       }
 
       // If there's a fruiting time, add it to the tree's fruiting_times array
       if (row.start_month && row.end_month) {
         const fruitingTime: FruitingTime = {
-          start_month: parseFloat(row.start_month),
-          end_month: parseFloat(row.end_month),
+          startMonth: parseFloat(row.start_month),
+          endMonth: parseFloat(row.end_month),
           description: row.description || undefined,
         };
-        treesMap.get(treeId)?.fruiting_times.push(fruitingTime);
+        treesMap.get(treeId)?.fruitingTimes.push(fruitingTime);
       }
     });
 

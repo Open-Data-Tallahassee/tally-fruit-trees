@@ -1,3 +1,4 @@
+import { GeoJsonProperties, Position } from "geojson";
 // This is the type definition for the "trees" table
 interface Tree {
   id: number;
@@ -5,9 +6,9 @@ interface Tree {
   long: number;
   fruitType: string; // Corresponds to tree_types.name
   propertyType: string; // Corresponds to property_types.name
-  public_picking: boolean | null;
+  publicPicking: boolean | null;
   notes?: string; // Optional field
-  fruiting_times: FruitingTime[];
+  created: Date;
 }
 
 interface TreeWithDetails extends Tree {
@@ -15,13 +16,13 @@ interface TreeWithDetails extends Tree {
 }
 
 interface FruitingTime {
-  start_month: number; // 1 = January, 12 = December
-  end_month: number; // 1 = January, 12 = December
+  startMonth: number; // 1 = January, 12 = December
+  endMonth: number; // 1 = January, 12 = December
   description?: string;
 }
 
 interface TreeWithFruitingTime extends TreeWithDetails {
-  fruiting_times: FruitingTime[];
+  fruitingTimes: FruitingTime[];
 }
 
 interface TreeGithub {
@@ -38,8 +39,14 @@ interface TreeGithub {
   description?: string;
 }
 
+interface SelectedTreeInfo {
+  properties: GeoJsonProperties;
+  coordinates: Position;
+}
+
 export type {
   FruitingTime,
+  SelectedTreeInfo,
   Tree,
   TreeGithub,
   TreeWithDetails,
