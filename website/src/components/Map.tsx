@@ -4,7 +4,8 @@ interface MapProps {
 }
 
 import TreeInfoTooltip from "@/components/TreeInfoTooltip";
-import { Feature, FeatureCollection, GeoJsonProperties } from "geojson";
+import { SelectedTreeInfo } from "@/types/trees";
+import { Feature, FeatureCollection } from "geojson";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useRef, useState } from "react";
@@ -20,7 +21,9 @@ const Map = ({ treeData }: MapProps) => {
   const lng: number = -84.2875;
   const initZoom: number = 11.53;
 
-  const [selectedTree, setSelectedTree] = useState<GeoJsonProperties>(null);
+  const [selectedTree, setSelectedTree] = useState<SelectedTreeInfo | null>(
+    null
+  );
   const [openToolbar, setOpenToolbar] = useState<boolean>(false);
   const [openNewTreeForm, setOpenNewTreeForm] = useState<boolean>(false);
 
@@ -157,8 +160,16 @@ const Map = ({ treeData }: MapProps) => {
           // ─────────────────────────────────────────────────────
           mapRef.current.on("click", "treePoints", (e) => {
             const features = e.features?.[0];
+
             if (features) {
-              setSelectedTree(features.properties);
+              const coordinates =
+                features.geometry.type === "Point"
+                  ? features.geometry.coordinates
+                  : [0, 0];
+              setSelectedTree({
+                properties: features.properties,
+                coordinates: coordinates,
+              });
               if (!openToolbar) setOpenToolbar(true);
             }
           });
