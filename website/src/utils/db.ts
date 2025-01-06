@@ -194,7 +194,7 @@ export async function createTree(tree: Tree) {
  */
 export async function getTreesGithub(): Promise<TreeWithFruitingTime[]> {
   const csvUrl =
-    "https://raw.githubusercontent.com/Open-Data-Tallahassee/tally-fruit-trees/refs/heads/main/data/fruit_trees_202501031321.csv";
+    "https://raw.githubusercontent.com/Open-Data-Tallahassee/tally-fruit-trees/refs/heads/main/data/fruit_trees.csv";
 
   try {
     // Fetch the CSV data
